@@ -1,0 +1,7 @@
+.vscode
+chips/dist
+chips/node_modules
+chips/.vscode
+
+test/dist
+test/node_modules
