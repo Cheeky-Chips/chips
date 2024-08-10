@@ -1,7 +1,10 @@
-import express from 'express';
-import fs from 'fs';
-import RenderServer from './runtime/route';
-import sizeOf from 'buffer-image-size';
+import express from "express";
+import fs from "fs";
+import RenderServer from "./runtime/route";
+import sizeOf from "buffer-image-size";
+import { ObjectGroup } from "./game/objects";
+import { Vector2D } from "./game/utils";
+import { GameObject } from "./game/object";
 
 /**
  * GameConfig
@@ -15,8 +18,8 @@ export type GameConfig = {
   viewport?: {
     width: number;
     height: number;
-  }
-}
+  };
+};
 
 /**
  * GameHandler
@@ -32,39 +35,49 @@ export interface GameHandler {
  * Game
  * A class to represent the game
  */
-export default class Game { 
-
+export default class Game {
   // The game configuration
+
+  public static instance: Game;
+
   public config: GameConfig;
 
-  private app: express.Application;
   private handler: GameHandler;
   private loader: ResourceLoader;
   private server: RenderServer;
 
+  private layers: ObjectGroup[];
+
   constructor(handler: GameHandler) {
     this.config = handler.onConfig();
-    this.app = express();
     this.handler = handler;
     this.loader = new ResourceLoader();
     this.server = new RenderServer();
+    this.layers = Array.from(
+      { length: 4 },
+      () => new ObjectGroup(new Vector2D(0, 0), new Vector2D(0, 0), [])
+    );
   }
 
   /**
    * Launch the game
    * @returns void
    */
-  launch() {
+  public launch() {
     const config = this.handler.onConfig();
-    this.loader.loadImageFromPath(config.asset_path ?? "assets" + '/images');
+    //this.loader.loadImageFromPath(config.asset_path ?? "assets" + "/images");
+    Game.instance = this;
     this.handler.onLoad(this.loader);
-    this.server.setOnGetCallback((req, res) => {
-
-    })
     this.server.start(config.port ?? 3000);
   }
-}
 
+  public pushObject(layer: number, object: GameObject) {
+    if (layer < 0 || layer >= this.layers.length) {
+      throw new Error("Invalid layer index");
+    }
+    this.layers[layer].push(object);
+  }
+}
 
 export type GameImageData = {
   name: string;
@@ -75,7 +88,7 @@ export type GameImageData = {
 
   // Clip
   sx?: number;
-}
+};
 
 export class ResourceLoader {
   private image_data: GameImageData[];
@@ -91,8 +104,10 @@ export class ResourceLoader {
       const data: GameImageData = {
         name: file,
         path: `${path}/${file}`,
-        data_url: URL.createObjectURL(new Blob([buffer], {type: 'image/png'})),
-        ... sizeOf(buffer)
+        data_url: URL.createObjectURL(
+          new Blob([buffer], { type: "image/png" })
+        ),
+        ...sizeOf(buffer),
       };
       this.image_data.push(data);
     });
@@ -101,5 +116,4 @@ export class ResourceLoader {
   get(name: string) {
     return this.image_data.find((data) => data.name === name);
   }
-
 }

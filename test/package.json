@@ -13,5 +13,10 @@
   "devDependencies": {
     "@types/node": "^22.1.0",
     "typescript": "^5.5.4"
+  },
+  "dependencies": {
+    "@types/express": "^4.17.21",
+    "buffer-image-size": "^0.6.4",
+    "express": "^4.19.2"
   }
 }
