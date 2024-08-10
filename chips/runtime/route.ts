@@ -46,6 +46,7 @@ export default class RenderServer {
       res.setHeader("Connection", "keep-alive");
 
       const interval = setInterval(() => {
+        Game.instance.getHandler().onUpdate();
         res.write(
           `data: ${JSON.stringify({
             type: "update",

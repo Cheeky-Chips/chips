@@ -6,45 +6,29 @@ type OnUpdateListener = (object: GameObject) => void;
 type OnCreateListener = (object: GameObject) => void;
 
 export class GameObject {
-  public _cood: Cood;
-  public _size: Size;
+  public cood: Cood;
+  public size: Size;
 
-  public _isFrozen: boolean = false;
-  public _isHidden: boolean = false;
+  public isFrozen: boolean = false;
+  public isHidden: boolean = false;
 
   protected render: (ctx: CanvasRenderingContext2D) => void;
 
   constructor(cood: Cood, size: Size, layer: number = 0) {
-    this._cood = cood;
-    this._size = size;
+    this.cood = cood;
+    this.size = size;
     this.render = (_ctx: CanvasRenderingContext2D) => {};
   }
 
-  getRender() {
+  public getRender() {
     return this.render;
   }
 
-  set cood(cood: Cood) {
-    this.cood = cood;
-  }
-
-  set size(size: Size) {
-    this.size = size;
-  }
-
-  set isFrozen(isFrozen: boolean) {
-    this._isFrozen = isFrozen;
-  }
-
-  set isHidden(isHidden: boolean) {
-    this._isHidden = isHidden;
-  }
-
-  onCreate(listener: OnCreateListener) {
+  public onCreate(listener: OnCreateListener) {
     listener(this);
   }
 
-  onUpdate(listener: OnUpdateListener) {
+  public onUpdate(listener: OnUpdateListener) {
     listener(this);
   }
 }
@@ -61,6 +45,21 @@ export class Sprite extends GameObject {
       let image = new Image();
       image.src = data_url;
       ctx.drawImage(image, dx, dy, width, height);
+    };
+  }
+}
+
+export class Color extends GameObject {
+  private color: string;
+
+  constructor(cood: Cood, size: Size, color: string) {
+    super(cood, size);
+    this.color = color;
+    this.render = (ctx: CanvasRenderingContext2D) => {
+      let [dx, dy] = this.cood.t();
+      let [width, height] = this.size.t();
+      ctx.fillStyle = this.color;
+      ctx.fillRect(dx, dy, width, height);
     };
   }
 }

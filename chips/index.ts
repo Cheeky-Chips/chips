@@ -28,6 +28,7 @@ export type GameConfig = {
 export interface GameHandler {
   onConfig(): GameConfig;
   onLoad(loader: ResourceLoader): void;
+  onUpdate(): void;
   onEnd(): void;
 }
 
@@ -46,7 +47,7 @@ export default class Game {
   private loader: ResourceLoader;
   private server: RenderServer;
 
-  private layers: ObjectGroup[];
+  public layers: ObjectGroup[];
 
   constructor(handler: GameHandler) {
     this.config = handler.onConfig();
@@ -69,6 +70,10 @@ export default class Game {
     Game.instance = this;
     this.handler.onLoad(this.loader);
     this.server.start(config.port ?? 3000);
+  }
+
+  public getHandler() {
+    return this.handler;
   }
 
   public pushObject(layer: number, object: GameObject) {
@@ -97,7 +102,7 @@ export class ResourceLoader {
     this.image_data = [];
   }
 
-  loadImageFromPath(path: string) {
+  public loadImageFromPath(path: string) {
     const files = fs.readdirSync(path);
     files.forEach((file: string) => {
       const buffer = fs.readFileSync(`${path}/${file}`);
@@ -113,7 +118,7 @@ export class ResourceLoader {
     });
   }
 
-  get(name: string) {
+  public get(name: string) {
     return this.image_data.find((data) => data.name === name);
   }
 }
