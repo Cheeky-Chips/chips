@@ -56,7 +56,8 @@ export default class Game {
     this.server = new RenderServer();
     this.layers = Array.from(
       { length: 4 },
-      () => new ObjectGroup(new Vector2D(0, 0), new Vector2D(0, 0), [])
+      () =>
+        new ObjectGroup(new Vector2D(0, 0), new Vector2D(0, 0), "_layer", 0, [])
     );
   }
 
@@ -74,6 +75,10 @@ export default class Game {
 
   public getHandler() {
     return this.handler;
+  }
+
+  public getResourceLoader() {
+    return this.loader;
   }
 
   public pushObject(layer: number, object: GameObject) {

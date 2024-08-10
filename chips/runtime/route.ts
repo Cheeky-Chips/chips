@@ -1,6 +1,7 @@
 import express from "express";
 import path from "path";
 import Game from "..";
+import { Render } from "./render";
 
 /**
  * RenderServer
@@ -8,10 +9,12 @@ import Game from "..";
  */
 export default class RenderServer {
   private app: express.Application;
+  private render?: Render;
+  private runtime?: NodeJS.Timeout;
+  private running: boolean = false;
 
   constructor() {
     const p = path.join(__dirname, "public");
-    console.log(p);
     this.app = express();
     this.app.use(express.static(p));
     this.app.use(express.urlencoded({ extended: true }));
@@ -28,35 +31,55 @@ export default class RenderServer {
         res.sendStatus(500);
         return;
       }
-      console.log(req.body);
+      if (this.running) {
+        console.log("Server is already running");
+        res.sendStatus(423);
+        return;
+      }
       const data = req.body;
 
-      if (data.type === "load_over") {
-        Game.instance.config.viewport = {
-          width: data.canvas_width,
-          height: data.canvas_height,
-        };
-        res.sendStatus(200);
+      switch (data.type) {
+        case "load_over":
+          Game.instance.config.viewport = {
+            width: data.canvas_width,
+            height: data.canvas_height,
+          };
+          this.render = new Render(data.canvas_width, data.canvas_height);
+          this.render.clear();
+          res.sendStatus(200);
+          break;
+        case "page_close":
+          clearInterval(this.runtime!);
+          res.sendStatus(200);
+          break;
       }
+      Game.instance.getHandler().onLoad(Game.instance.getResourceLoader());
     });
 
     this.app.get("/update-api", (req, res) => {
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
-
-      const interval = setInterval(() => {
+      if (this.running) {
+        res.end();
+        return;
+      }
+      this.running = true;
+      this.runtime = setInterval(() => {
         Game.instance.getHandler().onUpdate();
         res.write(
           `data: ${JSON.stringify({
             type: "update",
-            body: "Update Success",
+            body: this.render?.render(),
           })}\n\n`
         );
+        this.render?.clear();
       }, 1000 / (Game.instance.config.fps ?? 60));
 
       req.on("close", () => {
-        clearInterval(interval);
+        this.running = false;
+        clearInterval(this.runtime);
+        this.render?.clear();
       });
     });
 

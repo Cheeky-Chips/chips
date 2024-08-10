@@ -81,6 +81,9 @@ export class Vector2D {
 export type Cood = Vector2D;
 export type Size = Vector2D;
 
+// constructor for Vector2D
+export const V = (x: number, y: number): Vector2D => new Vector2D(x, y);
+
 /**
  * A class to represent a rectangle
  * @class Rect
