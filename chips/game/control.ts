@@ -2,10 +2,30 @@ import Game from "..";
 import { GameObject } from "./object";
 import { V } from "./utils";
 
+/**
+ * Controller
+ * A class to represent a controller
+ */
 export class Controller {
+  /**
+   * Keybindings for movement
+   */
   public static movementKeybindings = ["a", "d", "w", "s"];
+  /**
+   * States of the movement
+   */
   private static states = [false, false, false, false];
-  public static useMovementController(target: GameObject, speed: number = 4) {
+
+  /**
+   * Use a movement controller
+   * @param {GameObject} target - The target object
+   * @param {number} [speed=4] - The speed of the movement
+   * @returns {void}
+   */
+  public static useMovementController(
+    target: GameObject,
+    speed: number = 4
+  ): void {
     const onKeyDown0 = target.onKeyDown;
     const onKeyUp0 = target.onKeyUp;
     const onUpdate0 = target.onUpdate;
@@ -39,7 +59,12 @@ export class Controller {
     };
   }
 
-  public static useCameraController(target: GameObject) {
+  /**
+   * Use a camera controller
+   * @param {GameObject} target - The target
+   * @returns {void}
+   */
+  public static useCameraController(target: GameObject): void {
     const onUpdate0 = target.onUpdate;
     target.onUpdate = (obj) => {
       Game.instance.currentCamera.focus(obj.getRect().center);

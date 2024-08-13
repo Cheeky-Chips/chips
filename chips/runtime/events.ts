@@ -1,34 +1,64 @@
 import Game from "..";
 import { Rect, V } from "../game/utils";
 
+/**
+ * GameKeyboardEvent
+ * A type to represent a game keyboard event
+ */
 export type GameKeyboardEvent = {
   type: "keydown" | "keyup";
   key: string;
 };
 
+/**
+ * GameMouseEvent
+ * A type to represent a game mouse event
+ */
 export type GameMouseEvent = {
   type: "mousedown" | "mouseup" | "mousemove" | "click";
   x: number;
   y: number;
 };
 
+/**
+ * Events
+ * A class to handle the game events
+ */
 export class Events {
   private keyboardEvents: GameKeyboardEvent[] = []; // Queue of keyboard events
   private mouseEvents: GameMouseEvent[] = []; // Queue of mouse events
 
+  /**
+   * Clear the events
+   * @returns {void}
+   */
   public clear(): void {
     this.keyboardEvents = [];
     this.mouseEvents = [];
   }
 
+  /**
+   * Push a keyboard event
+   * @param {GameKeyboardEvent} event - The keyboard event
+   * @returns {void}
+   */
   public pushKeyboardEvent(event: GameKeyboardEvent): void {
     this.keyboardEvents.push(event);
   }
 
+  /**
+   * Push a mouse event
+   * @param {GameMouseEvent} event - The mouse event
+   * @returns {void}
+   */
   public pushMouseEvent(event: GameMouseEvent): void {
     this.mouseEvents.push(event);
   }
 
+  /**
+   * Dispatch a keyboard event
+   * @returns {void}
+   */
   public dispatchKeyboardEvent(): void {
     let e = this.keyboardEvents.shift();
     e &&
@@ -44,6 +74,10 @@ export class Events {
       });
   }
 
+  /**
+   * Dispatch a mouse event
+   * @returns {void}
+   */
   public dispatchMouseEvent(): void {
     let e = this.mouseEvents.shift();
     e &&

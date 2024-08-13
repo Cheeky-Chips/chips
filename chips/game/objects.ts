@@ -84,6 +84,11 @@ export class ObjectGroup extends GameObject {
     for (let object of this.objects) object.renderTo(ctx);
   }
 
+  /**
+   * Dispatch the key down event
+   * @param {string} key - The key that was pressed
+   * @returns {boolean} Whether the event is transitive
+   */
   public override dispatchKeyDown(key: string): boolean {
     let tr = this.onKeyDown?.(this, key);
     for (let object of this.objects) {
@@ -92,6 +97,11 @@ export class ObjectGroup extends GameObject {
     return tr ?? false;
   }
 
+  /**
+   * Dispatch the key up event
+   * @param {string} key - The key that was released
+   * @returns {boolean} Whether the event is transitive
+   */
   public override dispatchKeyUp(key: string): boolean {
     let tr = this.onKeyUp?.(this, key);
     for (let object of this.objects) {
@@ -100,6 +110,12 @@ export class ObjectGroup extends GameObject {
     return tr ?? false;
   }
 
+  /**
+   * Dispatch the mouse down event
+   * @param {Cood} cood - The coordinate of the mouse
+   * @param {Cood} relativeCood - The coordinate of the mouse relative to the object
+   * @returns {boolean} Whether the event is transitive
+   */
   public override dispatchMouseDown(cood: Cood, relativeCood: Cood): boolean {
     let tr = this.onMouseDown?.(this, cood, relativeCood);
     for (let object of this.objects) {
@@ -110,6 +126,12 @@ export class ObjectGroup extends GameObject {
     return tr ?? false;
   }
 
+  /**
+   * Dispatch the mouse up event
+   * @param {Cood} cood - The coordinate of the mouse
+   * @param {Cood} relativeCood - The coordinate of the mouse relative to the object
+   * @returns {boolean} Whether the event is transitive
+   */
   public override dispatchMouseUp(cood: Cood, relativeCood: Cood): boolean {
     let tr = this.onMouseUp?.(this, cood, relativeCood);
     for (let object of this.objects) {
@@ -120,6 +142,12 @@ export class ObjectGroup extends GameObject {
     return tr ?? false;
   }
 
+  /**
+   * Dispatch the mouse move event
+   * @param {Cood} cood - The coordinate of the mouse
+   * @param {Cood} relativeCood - The coordinate of the mouse relative to the object
+   * @returns {boolean} Whether the event is transitive
+   */
   public override dispatchMouseMove(cood: Cood, relativeCood: Cood): boolean {
     let tr = this.onMouseMove?.(this, cood, relativeCood);
     for (let object of this.objects) {
@@ -130,6 +158,12 @@ export class ObjectGroup extends GameObject {
     return tr ?? false;
   }
 
+  /**
+   * Dispatch the click event
+   * @param {Cood} cood - The coordinate of the mouse
+   * @param {Cood} relativeCood - The coordinate of the mouse relative to the object
+   * @returns {boolean} Whether the event is transitive
+   */
   public override dispatchClick(cood: Cood, relativeCood: Cood): boolean {
     let tr = this.onClick?.(this, cood, relativeCood);
     for (let object of this.objects) {
@@ -143,6 +177,10 @@ export class ObjectGroup extends GameObject {
     return tr ?? false;
   }
 
+  /**
+   * Dispatch the update event
+   * @returns {boolean} Whether the event is transitive
+   */
   public override dispatchUpdate(): boolean {
     let tr = this.onUpdate?.(this);
     if (tr == undefined) tr = true;

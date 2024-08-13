@@ -180,10 +180,18 @@ export class Rect {
     return this.y + this.height;
   }
 
+  /**
+   * Get the size of the rectangle
+   * @returns {Size} The size of the rectangle
+   */
   public get size(): Size {
     return V(this.width, this.height);
   }
 
+  /**
+   * Get the coordinate of the rectangle
+   * @returns {Cood} The coordinate of the rectangle
+   */
   public get cood(): Cood {
     return V(this.x, this.y);
   }
