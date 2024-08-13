@@ -1,10 +1,18 @@
 import Game, { GameImageData } from "..";
 import { RenderRecord } from "../runtime/render";
-import { Cood, Size } from "./utils";
+import { Cood, Rect, Size } from "./utils";
 import { CanvasRenderingContext2D } from "skia-canvas";
 
-type OnUpdateListener = (object: GameObject) => void;
-type OnCreateListener = (object: GameObject) => void;
+export type OnUpdateListener = (object: GameObject) => boolean;
+export type OnCreateListener = (object: GameObject) => boolean;
+
+export type OnKeyListener = (object: GameObject, key: string) => boolean;
+
+export type OnMouseListener = (
+  object: GameObject,
+  cood: Cood,
+  relativeCood: Cood
+) => boolean;
 
 /**
  * GameObject
@@ -18,8 +26,16 @@ export class GameObject {
   public isFrozen: boolean = false;
   public isHidden: boolean = false;
 
-  public onUpdate: OnUpdateListener = (_object: GameObject) => {};
-  public onCreate: OnCreateListener = (_object: GameObject) => {};
+  public onUpdate?: OnUpdateListener;
+  public onCreate?: OnCreateListener;
+
+  public onKeyDown?: OnKeyListener;
+  public onKeyUp?: OnKeyListener;
+
+  public onMouseDown?: OnMouseListener;
+  public onMouseUp?: OnMouseListener;
+  public onMouseMove?: OnMouseListener;
+  public onClick?: OnMouseListener;
 
   protected render?: (ctx: RenderRecord[]) => void;
 
@@ -34,7 +50,6 @@ export class GameObject {
     this.cood = cood;
     this.size = size;
     this.id = id;
-    this.render = (_ctx: RenderRecord[]) => {};
   }
 
   /**
@@ -43,6 +58,15 @@ export class GameObject {
    */
   public load(): void {
     Game.instance.layers[this.layer].push(this);
+    this.onCreate?.(this);
+  }
+
+  /**
+   * Get the rect of the object
+   * @returns {Rect} The rect of the object
+   */
+  public getRect(): Rect {
+    return Rect.from(this.cood, this.size);
   }
 
   /**
@@ -52,6 +76,34 @@ export class GameObject {
    */
   public renderTo(ctx: RenderRecord[]): void {
     if (this.render) this.render(ctx);
+  }
+
+  public dispatchKeyDown(key: string): boolean {
+    return this.onKeyDown?.(this, key) ?? true;
+  }
+
+  public dispatchKeyUp(key: string): boolean {
+    return this.onKeyUp?.(this, key) ?? true;
+  }
+
+  public dispatchMouseDown(cood: Cood, relativeCood: Cood): boolean {
+    return this.onMouseDown?.(this, cood, relativeCood) ?? true;
+  }
+
+  public dispatchMouseUp(cood: Cood, relativeCood: Cood): boolean {
+    return this.onMouseUp?.(this, cood, relativeCood) ?? true;
+  }
+
+  public dispatchMouseMove(cood: Cood, relativeCood: Cood): boolean {
+    return this.onMouseMove?.(this, cood, relativeCood) ?? true;
+  }
+
+  public dispatchClick(cood: Cood, relativeCood: Cood): boolean {
+    return this.onClick?.(this, cood, relativeCood) ?? true;
+  }
+
+  public dispatchUpdate(): boolean {
+    return this.onUpdate?.(this) ?? true;
   }
 }
 

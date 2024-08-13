@@ -5,6 +5,7 @@ import sizeOf from "buffer-image-size";
 import { ObjectGroup } from "./game/objects";
 import { Vector2D } from "./game/utils";
 import { GameObject } from "./game/object";
+import { Events } from "./runtime/events";
 
 /**
  * GameConfig
@@ -46,6 +47,7 @@ export default class Game {
   private handler: GameHandler;
   private loader: ResourceLoader;
   private server: RenderServer;
+  private events: Events;
 
   public layers: ObjectGroup[];
 
@@ -54,11 +56,23 @@ export default class Game {
     this.handler = handler;
     this.loader = new ResourceLoader();
     this.server = new RenderServer();
-    this.layers = Array.from(
-      { length: 4 },
-      () =>
-        new ObjectGroup(new Vector2D(0, 0), new Vector2D(0, 0), "_layer", 0, [])
-    );
+    this.events = new Events();
+    this.layers = Array.from({ length: 4 }, () => {
+      let g = new ObjectGroup(
+        new Vector2D(0, 0),
+        new Vector2D(0, 0),
+        "_layer",
+        0,
+        []
+      );
+      g.onClick = (_obj, _cood, _rCood) => true;
+      g.onMouseUp = (_obj, _cood, _rCood) => true;
+      g.onMouseDown = (_obj, _cood, _rCood) => true;
+      g.onMouseMove = (_obj, _cood, _rCood) => true;
+      g.onKeyDown = (_obj, _key) => true;
+      g.onKeyUp = (_obj, _key) => true;
+      return g;
+    });
   }
 
   /**
@@ -79,6 +93,10 @@ export default class Game {
 
   public getResourceLoader() {
     return this.loader;
+  }
+
+  public getEvents() {
+    return this.events;
   }
 
   public pushObject(layer: number, object: GameObject) {

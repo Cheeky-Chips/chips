@@ -1,5 +1,3 @@
-import { CanvasRenderingContext2D, ImageData } from "skia-canvas";
-import { Canvas } from "skia-canvas";
 import Game from "..";
 
 export type RenderRecord = {
@@ -19,7 +17,7 @@ export class Render {
 
   public render(): RenderRecord[] {
     for (let object of Game.instance.layers) {
-      object.onUpdate(object);
+      object.dispatchUpdate();
       object.renderTo(this.record);
     }
     return this.record;

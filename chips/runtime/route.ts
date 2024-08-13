@@ -26,6 +26,7 @@ export default class RenderServer {
    * @returns void
    */
   public start(port: number) {
+    // Start overall api posts
     this.app.post("/api", (req, res) => {
       if (req.body === undefined) {
         res.sendStatus(500);
@@ -56,6 +57,7 @@ export default class RenderServer {
       Game.instance.getHandler().onLoad(Game.instance.getResourceLoader());
     });
 
+    // Tick updates
     this.app.get("/update-api", (req, res) => {
       res.setHeader("Content-Type", "text/event-stream");
       res.setHeader("Cache-Control", "no-cache");
@@ -73,6 +75,13 @@ export default class RenderServer {
             body: this.render?.render(),
           })}\n\n`
         );
+        setTimeout(() => {
+          res.write(
+            `data: ${JSON.stringify({
+              type: "clear",
+            })}\n\n`
+          );
+        }, 1000 / (Game.instance.config.fps ?? 60));
         this.render?.clear();
       }, 1000 / (Game.instance.config.fps ?? 60));
 
@@ -81,6 +90,31 @@ export default class RenderServer {
         clearInterval(this.runtime);
         this.render?.clear();
       });
+    });
+
+    // Event occurs
+    this.app.post("/event-api", (req, res) => {
+      if (req === undefined) {
+        res.sendStatus(500);
+        return;
+      }
+      const data = req.body;
+      if (data.id == 1) {
+        Game.instance.getEvents().pushKeyboardEvent({
+          type: data.type,
+          key: data.key,
+        });
+        Game.instance.getEvents().dispatchKeyboardEvent();
+        res.sendStatus(200);
+      } else {
+        Game.instance.getEvents().pushMouseEvent({
+          type: data.type,
+          x: data.x,
+          y: data.y,
+        });
+        Game.instance.getEvents().dispatchMouseEvent();
+        res.sendStatus(200);
+      }
     });
 
     this.app.listen(port, () => {

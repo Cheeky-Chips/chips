@@ -1,5 +1,5 @@
 import { CanvasRenderingContext2D } from "skia-canvas";
-import { GameObject } from "./object";
+import { GameObject, OnKeyListener } from "./object";
 import { Cood, Size } from "./utils";
 import Game from "..";
 import { RenderRecord } from "../runtime/render";
@@ -82,5 +82,73 @@ export class ObjectGroup extends GameObject {
    */
   public override renderTo(ctx: RenderRecord[]): void {
     for (let object of this.objects) object.renderTo(ctx);
+  }
+
+  public override dispatchKeyDown(key: string): boolean {
+    let tr = this.onKeyDown?.(this, key);
+    for (let object of this.objects) {
+      tr && object.dispatchKeyDown(key);
+    }
+    return tr ?? false;
+  }
+
+  public override dispatchKeyUp(key: string): boolean {
+    let tr = this.onKeyUp?.(this, key);
+    for (let object of this.objects) {
+      tr && object.dispatchKeyUp(key);
+    }
+    return tr ?? false;
+  }
+
+  public override dispatchMouseDown(cood: Cood, relativeCood: Cood): boolean {
+    let tr = this.onMouseDown?.(this, cood, relativeCood);
+    for (let object of this.objects) {
+      tr &&
+        this.getRect().contains(cood) &&
+        object.dispatchMouseDown(cood, cood.sub(this.cood));
+    }
+    return tr ?? false;
+  }
+
+  public override dispatchMouseUp(cood: Cood, relativeCood: Cood): boolean {
+    let tr = this.onMouseUp?.(this, cood, relativeCood);
+    for (let object of this.objects) {
+      tr &&
+        this.getRect().contains(cood) &&
+        object.dispatchMouseUp(cood, cood.sub(this.cood));
+    }
+    return tr ?? false;
+  }
+
+  public override dispatchMouseMove(cood: Cood, relativeCood: Cood): boolean {
+    let tr = this.onMouseMove?.(this, cood, relativeCood);
+    for (let object of this.objects) {
+      tr &&
+        this.getRect().contains(cood) &&
+        object.dispatchMouseMove(cood, cood.sub(this.cood));
+    }
+    return tr ?? false;
+  }
+
+  public override dispatchClick(cood: Cood, relativeCood: Cood): boolean {
+    let tr = this.onClick?.(this, cood, relativeCood);
+    for (let object of this.objects) {
+      console.log(
+        `Mouse Event: ${tr}, ${object.cood.t()}, ${object.size.t()}, ${cood.t()}`
+      );
+      tr &&
+        object.getRect().contains(cood) &&
+        object.dispatchClick(cood, cood.sub(object.cood));
+    }
+    return tr ?? false;
+  }
+
+  public override dispatchUpdate(): boolean {
+    let tr = this.onUpdate?.(this);
+    if (tr == undefined) tr = true;
+    for (let object of this.objects) {
+      tr && object.dispatchUpdate();
+    }
+    return tr ?? true;
   }
 }
