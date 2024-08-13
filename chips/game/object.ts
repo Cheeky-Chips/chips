@@ -1,5 +1,6 @@
 import Game, { GameImageData } from "..";
 import { RenderRecord } from "../runtime/render";
+import { GameAnimation } from "./animation";
 import { Cood, Rect, Size } from "./utils";
 import { CanvasRenderingContext2D } from "skia-canvas";
 
@@ -25,6 +26,10 @@ export class GameObject {
 
   public isFrozen: boolean = false;
   public isHidden: boolean = false;
+  public flipX: boolean = false;
+  public flipY: boolean = false;
+
+  public currentAnimation: GameAnimation | null = null;
 
   public onUpdate?: OnUpdateListener;
   public onCreate?: OnCreateListener;
@@ -69,12 +74,22 @@ export class GameObject {
     return Rect.from(this.cood, this.size);
   }
 
+  public runAnimation(animation: GameAnimation): void {
+    this.currentAnimation = animation;
+  }
+
+  public endAnimation(): void {
+    this.currentAnimation?.endFrame();
+    this.currentAnimation = null;
+  }
+
   /**
    * Render the object to the context
    * @param {CanvasRenderingContext2D} ctx - The context to render to
    * @returns {void}
    */
   public renderTo(ctx: RenderRecord[]): void {
+    if (!this.currentAnimation?.tick()) this.endAnimation();
     if (this.render) this.render(ctx);
   }
 
@@ -105,6 +120,13 @@ export class GameObject {
   public dispatchUpdate(): boolean {
     return this.onUpdate?.(this) ?? true;
   }
+
+  protected getClientCood(): { x: number; y: number } {
+    return {
+      x: this.cood.x - Game.instance.currentCamera.cood.x,
+      y: this.cood.y - Game.instance.currentCamera.cood.y,
+    };
+  }
 }
 
 /**
@@ -125,14 +147,14 @@ export class Sprite extends GameObject {
     this.image = image;
     this.render = (ctx: RenderRecord[]) => {
       let { data_url, width, height } = this.image;
-      let [dx, dy] = this.cood.t();
       ctx.push({
         command: "image",
-        x: dx,
-        y: dy,
+        ...this.getClientCood(),
         width: width,
         height: height,
         arg: data_url,
+
+        ...(this.currentAnimation?.currentRecord ?? {}),
       });
     };
   }
@@ -155,15 +177,15 @@ export class Color extends GameObject {
     super(cood, size, id, layer);
     this.color = color;
     this.render = (ctx: RenderRecord[]) => {
-      let [dx, dy] = this.cood.t();
       let [width, height] = this.size.t();
       ctx.push({
         command: "color",
-        x: dx,
-        y: dy,
+        ...this.getClientCood(),
         width: width,
         height: height,
         arg: color,
+
+        ...(this.currentAnimation?.currentRecord ?? {}),
       });
     };
   }

@@ -1,3 +1,5 @@
+import { RenderRecord } from "../runtime/render";
+
 /**
  * A class to represent a 2D Vector
  * @class Vector2D
@@ -176,6 +178,14 @@ export class Rect {
    */
   public get bottom(): number {
     return this.y + this.height;
+  }
+
+  public get size(): Size {
+    return V(this.width, this.height);
+  }
+
+  public get cood(): Cood {
+    return V(this.x, this.y);
   }
 
   /**

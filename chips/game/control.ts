@@ -1,3 +1,4 @@
+import Game from "..";
 import { GameObject } from "./object";
 import { V } from "./utils";
 
@@ -34,6 +35,14 @@ export class Controller {
       if (Controller.states[3]) {
         obj.cood = obj.cood.add(V(0, speed));
       }
+      return onUpdate0?.call(target, obj) ?? false;
+    };
+  }
+
+  public static useCameraController(target: GameObject) {
+    const onUpdate0 = target.onUpdate;
+    target.onUpdate = (obj) => {
+      Game.instance.currentCamera.focus(obj.getRect().center);
       return onUpdate0?.call(target, obj) ?? false;
     };
   }

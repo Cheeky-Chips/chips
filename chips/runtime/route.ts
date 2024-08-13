@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import Game from "..";
 import { Render } from "./render";
+import { V } from "../game/utils";
 
 /**
  * RenderServer
@@ -45,6 +46,10 @@ export default class RenderServer {
             width: data.canvas_width,
             height: data.canvas_height,
           };
+          Game.instance.currentCamera.size = V(
+            data.canvas_width,
+            data.canvas_height
+          );
           this.render = new Render(data.canvas_width, data.canvas_height);
           this.render.clear();
           res.sendStatus(200);

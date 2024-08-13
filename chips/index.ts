@@ -3,9 +3,10 @@ import fs from "fs";
 import RenderServer from "./runtime/route";
 import sizeOf from "buffer-image-size";
 import { ObjectGroup } from "./game/objects";
-import { Vector2D } from "./game/utils";
+import { V, Vector2D } from "./game/utils";
 import { GameObject } from "./game/object";
 import { Events } from "./runtime/events";
+import { Camera } from "./game/camera";
 
 /**
  * GameConfig
@@ -50,6 +51,7 @@ export default class Game {
   private events: Events;
 
   public layers: ObjectGroup[];
+  public currentCamera: Camera;
 
   constructor(handler: GameHandler) {
     this.config = handler.onConfig();
@@ -57,6 +59,7 @@ export default class Game {
     this.loader = new ResourceLoader();
     this.server = new RenderServer();
     this.events = new Events();
+    this.currentCamera = new Camera(V(0, 0), V(0, 0), 1, "main_camera");
     this.layers = Array.from({ length: 4 }, () => {
       let g = new ObjectGroup(
         new Vector2D(0, 0),
